@@ -1,1 +1,0 @@
-- [DhanHQ v2 wire contract](dhanhq-v2-wire-contract.md) — subscriptions are JSON; ticker responses are fixed little-endian binary packets.
