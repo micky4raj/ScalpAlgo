@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dhan-nifty-scalper"
+version = "0.1.0"
+description = "Paper-first async Nifty scalping engine with DhanHQ adapters"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+live = [
+  "aiohttp>=3.9",
+  "websockets>=12",
+  "uvloop>=0.19; sys_platform != 'win32'",
+]
+dev = [
+  "pytest>=8",
+  "pytest-asyncio>=0.23",
+]
+
+[project.scripts]
+dhan-scalper = "dhan_scalper.main:main"
+
+[tool.setuptools.packages.find]
+include = ["dhan_scalper*"]

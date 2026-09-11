@@ -1,6 +1,8 @@
-# [Project name]
+# DhanHQ Nifty Scalping Engine
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Paper-first async Python engine for evaluating Nifty 50 futures and options
+scalping strategies with DhanHQ adapters, transparent trading costs, and a
+SQLite trade journal.
 
 ## Run & Operate
 
@@ -10,6 +12,8 @@ _Replace the heading above with the project's name, and this line with one sente
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- `python -m dhan_scalper.main` — run the safe paper-mode demonstration
+- Install optional live dependencies with `pip install -e '.[live]'`
 
 ## Stack
 
@@ -19,26 +23,39 @@ _Replace the heading above with the project's name, and this line with one sente
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
 - Build: esbuild (CJS bundle)
+- Trading engine: Python 3.11+, asyncio, optional uvloop/aiohttp/websockets,
+  SQLite
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `dhan_scalper/` — modular trading engine
+- `dhan_scalper/config.py` — environment-driven source of truth for safety,
+  strategy, risk, and cost settings
+- `README.md` and `.env.example` — setup and operational guardrails
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Paper mode is the default and has no network dependency.
+- Live mode requires both Dhan credentials and an explicit confirmation string.
+- Strategy code depends on `Tick` and `Signal`, not on broker transport.
+- Costs are configurable rather than hard-coded as permanently current rates.
+- SQLite stores the full local execution lifecycle and analytics inputs.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+The engine supports paper evaluation of Nifty scalping signals, net-of-cost P&L
+calculation, execution latency/slippage logging, and a guarded DhanHQ live
+adapter for a specifically configured instrument.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+No additional preferences recorded.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Never enable live mode without confirming current DhanHQ/NSE rate-card values.
+- Do not put Dhan credentials in `.env.example`, source control, or chat.
+- The live runner refuses to start without a configured instrument subscription.
 
 ## Pointers
 
