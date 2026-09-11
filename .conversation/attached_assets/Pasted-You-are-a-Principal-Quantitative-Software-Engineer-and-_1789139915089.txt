@@ -1,0 +1,51 @@
+You are a Principal Quantitative Software Engineer and Algorithmic Trading Systems Architect specializing in Ultra-Low Latency (ULL) execution systems for Indian Financial Markets (NSE).
+
+Your task is to design and write a modular, production-grade Python algorithmic scalping trading engine optimized for Nifty 50 index options/futures using the DhanHQ API (v2).
+
+---
+
+### CORE SYSTEM REQUIREMENTS & ARCHITECTURE
+
+#### 1. Tech Stack & Latency Optimization
+- **Asynchronous Core:** Use `asyncio` and `uvloop` for high-throughput, non-blocking asynchronous event loops.
+- **WebSocket Feed:** Use DhanHQ WebSocket API for live, tick-by-tick order book and LTP streaming.
+- **Zero-Copy Hot Path:** Fast memory structures (e.g., `deque`, `numpy` arrays) for tick processing without memory leaks or heavy GC overhead.
+- **Order Execution Speed:** Sub-millisecond order preparation; asynchronous REST requests via `aiohttp` or Dhan’s async SDK.
+
+#### 2. Mode Switching (Paper Trade vs. Live Trade)
+- Provide a clear environment variable / config toggle: `EXECUTION_MODE = "PAPER"` or `"LIVE"`.
+- **Paper Engine:** Simulate realistic order execution with tick-based matching, slippage models (0.05-0.1%), queue delays, and immediate execution status callbacks without sending orders to Dhan.
+- **Live Engine:** Route orders directly to DhanHQ endpoints with strict order tracking (PENDING, TRADED, REJECTED, CANCELLED).
+
+#### 3. Strategy Engine (High-Win Rate Nifty Scalping)
+- **Timeframe/Trigger:** Tick-by-tick / 5-second dynamic candles / Order Flow Momentum.
+- **Indicators:** VWAP, Dynamic EMA Crossover (5/13), and Tick Volume Spikes.
+- **Logic:** Scalp 10-15 points on Option Premium (or 20-30 index points) with tight risk management.
+- **Risk Control:** Hard Stop Loss (SL), Trailing SL based on ATR, Profit Target, and Daily Max Loss/Drawdown Circuit Breakers.
+
+#### 4. Friction, Brokerage & Tax Engine (NSE / Dhan Calculator)
+Integrate a real-time net P&L calculator that deducts exact costs before declaring trade profitability:
+- **Brokerage:** Dhan flat ₹20 or 0.03% (whichever is lower) per executed order.
+- **STT (Securities Transaction Tax):** 0.0625% on sell side (Options premium) / 0.0125% (Futures).
+- **Exchange Turnover Charges:** NSE charges.
+- **GST:** 18% on Brokerage + Exchange Charges.
+- **SEBI Turnover Charges & Stamp Duty:** Latest NSE/Government rate card.
+
+#### 5. Trade Journal & P&L Analytics
+- Log every tick, order attempt, execution latency (in microseconds), slip, and complete trade lifecycle.
+- **Storage:** SQLite / DuckDB for local persistency and structured trade logs.
+- **Analytics Module:** Calculate Real-time Win Rate, Profit Factor, Max Drawdown, Sharpe Ratio, Gross P&L, Total Taxes/Brokerage, and Net P&L.
+
+---
+
+### DELIVERABLES TO GENERATE
+
+1. **`config.py`**: Configuration management, API keys, instrument tokens, taxation constants, and strategy parameters.
+2. **`dhan_client.py`**: Async wrapper for DhanHQ WebSocket feed and order management API.
+3. **`cost_calculator.py`**: Real-time NSE + Dhan tax and brokerage calculation engine.
+4. **`scalp_strategy.py`**: Low-latency signal generation logic with strict trailing SL.
+5. **`execution_engine.py`**: Abstract execution controller with Paper Trading Simulator and Live Dhan Executor.
+6. **`journal.py`**: Trade logger, SQLite database handler, and automated performance analytics reporter.
+7. **`main.py`**: Orchestrator executing the complete pipeline asynchronously.
+
+Please write clean, object-oriented, fully type-hinted, and production-ready Python code with comprehensive documentation and error handling.
