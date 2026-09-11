@@ -14,6 +14,8 @@ SQLite trade journal.
 - Required env: `DATABASE_URL` — Postgres connection string
 - `python -m dhan_scalper.main` — run the safe paper-mode demonstration
 - Install optional live dependencies with `pip install -e '.[live]'`
+- Paper market data tries DhanHQ first, then falls back to yfinance; use
+  `PAPER_DATA_SOURCE=DEMO` for offline smoke checks
 
 ## Stack
 
@@ -56,6 +58,7 @@ No additional preferences recorded.
 - Never enable live mode without confirming current DhanHQ/NSE rate-card values.
 - Do not put Dhan credentials in `.env.example`, source control, or chat.
 - The live runner refuses to start without a configured instrument subscription.
+- yfinance `^NSEI` is index data and is not an options-premium substitute.
 
 ## Pointers
 

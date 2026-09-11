@@ -23,6 +23,12 @@ class InstrumentType(StrEnum):
     FUTURE = "FUTURE"
 
 
+class PaperDataSource(StrEnum):
+    DHAN = "DHAN"
+    YFINANCE = "YFINANCE"
+    DEMO = "DEMO"
+
+
 def _env_float(name: str, default: float) -> float:
     value = os.getenv(name)
     return default if value is None else float(value)
@@ -212,6 +218,36 @@ class JournalConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class PaperFeedConfig:
+    source: PaperDataSource = PaperDataSource.DHAN
+    yfinance_symbol: str = "^NSEI"
+    yfinance_period: str = "1d"
+    yfinance_interval: str = "1m"
+    dhan_tick_timeout_seconds: float = 15.0
+    max_yfinance_rows: int = 390
+
+    @classmethod
+    def from_env(cls) -> "PaperFeedConfig":
+        source = os.getenv("PAPER_DATA_SOURCE", "DHAN").upper()
+        try:
+            paper_source = PaperDataSource(source)
+        except ValueError as exc:
+            raise ValueError(
+                "PAPER_DATA_SOURCE must be DHAN, YFINANCE, or DEMO"
+            ) from exc
+        return cls(
+            source=paper_source,
+            yfinance_symbol=os.getenv("YFINANCE_SYMBOL", "^NSEI"),
+            yfinance_period=os.getenv("YFINANCE_PERIOD", "1d"),
+            yfinance_interval=os.getenv("YFINANCE_INTERVAL", "1m"),
+            dhan_tick_timeout_seconds=_env_float(
+                "DHAN_TICK_TIMEOUT_SECONDS", 15.0
+            ),
+            max_yfinance_rows=_env_int("MAX_YFINANCE_ROWS", 390),
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class EngineConfig:
     execution_mode: ExecutionMode = ExecutionMode.PAPER
     instrument_type: InstrumentType = InstrumentType.OPTION
@@ -220,6 +256,7 @@ class EngineConfig:
     strategy: StrategyConfig = StrategyConfig()
     risk: RiskConfig = RiskConfig()
     journal: JournalConfig = JournalConfig()
+    paper_feed: PaperFeedConfig = PaperFeedConfig()
 
     @classmethod
     def from_env(cls) -> "EngineConfig":
@@ -243,11 +280,14 @@ class EngineConfig:
             strategy=StrategyConfig.from_env(),
             risk=RiskConfig.from_env(),
             journal=JournalConfig.from_env(),
+            paper_feed=PaperFeedConfig.from_env(),
         )
 
     def validate(self) -> None:
         if self.risk.quantity <= 0:
             raise ValueError("ORDER_QUANTITY must be positive")
+        if self.paper_feed.max_yfinance_rows <= 0:
+            raise ValueError("MAX_YFINANCE_ROWS must be positive")
         if self.strategy.fast_ema_period >= self.strategy.slow_ema_period:
             raise ValueError("FAST_EMA_PERIOD must be less than SLOW_EMA_PERIOD")
         if self.execution_mode is ExecutionMode.LIVE:

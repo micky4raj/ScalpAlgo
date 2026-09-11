@@ -157,7 +157,12 @@ class ScalpingStrategy:
             target=tick.ltp + target_points,
         )
 
-    def register_entry(self, signal: Signal, quantity: int) -> None:
+    def register_entry(
+        self,
+        signal: Signal,
+        quantity: int,
+        entry_price: float | None = None,
+    ) -> None:
         if signal.action not in {
             SignalAction.ENTER_LONG,
             SignalAction.ENTER_SHORT,
@@ -172,13 +177,13 @@ class ScalpingStrategy:
         )
         self.position = PositionState(
             side=side,
-            entry_price=signal.price,
+            entry_price=entry_price if entry_price is not None else signal.price,
             quantity=quantity,
             opened_at=signal.timestamp,
             stop_loss=signal.stop_loss,
             target=signal.target,
-            highest_price=signal.price,
-            lowest_price=signal.price,
+            highest_price=entry_price if entry_price is not None else signal.price,
+            lowest_price=entry_price if entry_price is not None else signal.price,
         )
 
     def register_exit(self) -> PositionState | None:

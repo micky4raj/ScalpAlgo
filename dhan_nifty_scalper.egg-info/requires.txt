@@ -1,0 +1,12 @@
+yfinance>=0.2.54
+
+[dev]
+pytest>=8
+pytest-asyncio>=0.23
+
+[live]
+aiohttp>=3.9
+websockets>=12
+
+[live:sys_platform != "win32"]
+uvloop>=0.19

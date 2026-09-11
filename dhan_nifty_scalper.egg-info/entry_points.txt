@@ -1,0 +1,2 @@
+[console_scripts]
+dhan-scalper = dhan_scalper.main:main
